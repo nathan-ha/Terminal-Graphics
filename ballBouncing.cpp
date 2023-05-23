@@ -2,70 +2,82 @@
 #include <windows.h>
 #include <vector>
 #include <ctime>
-#include "terminalGraphics.h"
+#include <iostream>
+
+#include "terminalCanvas.h"
 
 struct ball
 {
     int r, c;
     char icon;
     bool rDirection, cDirection; // true means moving in positive direction
-    ball(int r = 1, int c = 1, bool rdir = true, bool cdir = true, char icon = '0') : r(r),
-                                                                                      c(c),
-                                                                                      icon(icon),
-                                                                                      rDirection(rdir),
-                                                                                      cDirection(cdir)
+    ball(int r = 0, int c = 0, bool rdir = true, bool cdir = true, char icon = '0')
+        : r(r),
+          c(c),
+          rDirection(rdir),
+          cDirection(cdir),
+          icon(icon)
     {
     }
 };
-
-void drawFrame(terminalGraphics &s, std::vector<ball> &balls, int delay_ms);
-void move(terminalGraphics &s, ball &b);
+void frame(terminalCanvas &s, std::vector<ball> &balls, int delay_ms);
+void move(terminalCanvas &s, ball &b);
 int randIntInc(int min, int max);
 
 int main()
 {
+    const int numBalls = 100;
+    const int numFrames = 50;
+
     srand(time(0));
 
-    terminalGraphics ctx(15, 8);
-    // ball b(0,1);
-    // ball b(randIntInc(ctx.top(), ctx.bottom()), randIntInc(ctx.left(), ctx.right()), randIntInc(0, 1));
+    terminalCanvas ctx(30, 20);
     std::vector<ball> balls;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < numBalls; i++)
     {
-        ball temp(randIntInc(ctx.top(),
-                             ctx.bottom()),
-                  randIntInc(ctx.left(), ctx.right()),
-                  randIntInc(0, 1),
-                  randIntInc(0, 1),
-                  randIntInc(33, 126));
+        //randomly generate a bunch of balls
+        ball temp
+        (
+             randIntInc(ctx.top(), ctx.bottom()),
+             randIntInc(ctx.left(), ctx.right()),
+             static_cast<bool>(randIntInc(0, 1)),
+             static_cast<bool>(randIntInc(0, 1)),
+             static_cast<char>(randIntInc(33, 126))
+        );
         balls.push_back(temp);
     }
 
-    for (int i = 0; i < 200; i++)
-    { // number of frames
-        drawFrame(ctx, balls, 60);
+    //actual animation
+    for (int i = 0; i < numFrames; i++)
+    {
+        frame(ctx, balls, 80);
     }
 }
 
-void drawFrame(terminalGraphics &s, std::vector<ball> &balls, int delay_ms)
+void frame(terminalCanvas &s, std::vector<ball> &balls, int delay_ms)
 {
     // set locations for balls
     for (int j = 0; j < balls.size(); j++)
     {
-        s.at(balls.at(j).r, balls.at(j).c) = balls.at(j).icon;
+        auto curr = balls.at(j);
+        s.at(curr.r, curr.c) = curr.icon;
     }
-    s.draw(); // draws balls
+    
+    s.draw();
+
     // undoes the last frame and moves the balls so it can be drawn on the next loop
     for (int j = 0; j < balls.size(); j++)
     {
         s.at(balls.at(j).r, balls.at(j).c) = s.getBackgroundChar();
         move(s, balls.at(j));
     }
+
     Sleep(delay_ms);
-    s.clear();
+    s.clearTerminal();
 }
 
-void move(terminalGraphics &s, ball &b)
+//updates ball positoin
+void move(terminalCanvas &s, ball &b)
 {
     // detect collision with border
     if (b.r >= s.bottom() && b.rDirection == true)
@@ -105,6 +117,7 @@ void move(terminalGraphics &s, ball &b)
     }
 }
 
+//returns random int (inclusive)
 int randIntInc(int min, int max)
 {
     return rand() % (max - min + 1) + min;
