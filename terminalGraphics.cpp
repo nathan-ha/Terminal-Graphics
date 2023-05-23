@@ -7,7 +7,8 @@
 
 using namespace std;
 
-void ShowConsoleCursor(bool showFlag) {
+void ShowConsoleCursor(bool showFlag)
+{
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(out, &cursorInfo);
@@ -15,100 +16,141 @@ void ShowConsoleCursor(bool showFlag) {
     SetConsoleCursorInfo(out, &cursorInfo);
 }
 
-terminalGraphics::terminalGraphics(int width, int height, char background) :
-    width(width),
-    height(height),
-    background(background),
-    screen(height, vector<char>(width, background)) //init 2d vector
+terminalGraphics::terminalGraphics(int width, int height, char background)
+    : width(width), //num columns
+      height(height), //num rows
+      background(background),
+      screen(new char[width * height]) //declare block of memory instead of 2d array for memory purposes
 {
+    //assign each element with background char
+    for (int r = 0; r < height; r++)
+    {
+        for (int c = 0; c < width; c++)
+        {
+            //note: move vertically for switching rows, horizontally for columns
+            at(r, c) = background;
+        }
+    }
     ShowConsoleCursor(false);
 }
 
-terminalGraphics::~terminalGraphics() {
+terminalGraphics::~terminalGraphics()
+{
+    delete[] screen;
+    screen = nullptr;
     ShowConsoleCursor(true);
 }
 
-void terminalGraphics::draw() const {
-    for (int r = 0; r < height; r++) {
-        for (int c = 0; c < width; c++) {
-            cout << screen[r][c] << ' ';
+void terminalGraphics::draw() const
+{
+    for (int r = 0; r < height; r++)
+    {
+        for (int c = 0; c < width; c++)
+        {
+            cout << at(r, c) << ' ';
         }
         cout << '\n';
     }
 }
 
-void terminalGraphics::clear() const {
+void terminalGraphics::clear() const
+{
     system("cls");
 }
 
-int terminalGraphics::getHeight() const {
+int terminalGraphics::getHeight() const
+{
     return height;
 }
 
-int terminalGraphics::getWidth() const {
+int terminalGraphics::getWidth() const
+{
     return width;
 }
 
-void terminalGraphics::resize(int newWidth, int newHeight) {
-    height = newHeight;
-    width = newWidth;
-    screen.resize(height);
-    for (auto &row : screen) {
-        row.resize(width, background);
-    } 
+void terminalGraphics::resize(int newWidth, int newHeight)
+{
+    // height = newHeight;
+    // width = newWidth;
+    // screen.resize(height);
+    // for (auto &row : screen)
+    // {
+    //     row.resize(width, background);
+    // }
 }
 
-void terminalGraphics::setHeight(int newHeight) {
-    height = newHeight;
-    screen.resize(height, vector<char>(width, background));
+void terminalGraphics::setHeight(int newHeight)
+{
+    // height = newHeight;
+    // screen.resize(height, vector<char>(width, background));
 }
 
-void terminalGraphics::setWidth(int newWidth) {
-    width = newWidth;
-    for (auto &row : screen) {
-        row.resize(width, background);
-    } 
+void terminalGraphics::setWidth(int newWidth)
+{
+    // width = newWidth;
+    // for (auto &row : screen)
+    // {
+    //     row.resize(width, background);
+    // }
 }
 
-char &terminalGraphics::at(int r, int c) {
-    return screen.at(r).at(c);
+char &terminalGraphics::at(int r, int c) 
+{
+    return screen[r + width * c];
 }
 
-const char &terminalGraphics::at(int r, int c) const {
-    return screen.at(r).at(c);
+const char &terminalGraphics::at(int r, int c) const
+{
+    return screen[r + width * c];
 }
 
-int terminalGraphics::top() const {
+//converts coordinates to index of array
+int terminalGraphics::index(int r, int c) const
+{
+    return r + width * c;
+}
+
+int terminalGraphics::top() const
+{
     return 0;
 }
 
-int terminalGraphics::bottom() const {
+int terminalGraphics::bottom() const
+{
     return height - 1;
 }
 
-int terminalGraphics::left() const {
+int terminalGraphics::left() const
+{
     return 0;
 }
 
-int terminalGraphics::right() const {
+int terminalGraphics::right() const
+{
     return width - 1;
 }
 
-void terminalGraphics::reset() {
-    for (int r = 0; r < height; r++) {
-        for (int c = 0; c < width; c++) {
-            screen[r][c] = background;
-        }
-    }
+void terminalGraphics::reset()
+{
+    // for (int r = 0; r < height; r++)
+    // {
+    //     for (int c = 0; c < width; c++)
+    //     {
+    //         screen[r][c] = background;
+    //     }
+    // }
 }
 
-int terminalGraphics::numRows() const {
+int terminalGraphics::numRows() const
+{
     return height;
 }
-int terminalGraphics::numCols() const {
+int terminalGraphics::numCols() const
+{
     return width;
 }
 
-char terminalGraphics::getBackgroundChar() const {
+char terminalGraphics::getBackgroundChar() const
+{
     return background;
 }
