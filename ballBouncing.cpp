@@ -26,12 +26,12 @@ int randIntInc(int min, int max);
 
 int main()
 {
-    const int numBalls = 100;
-    const int numFrames = 50;
+    int numBalls = 5;
+    int numFrames = 100;
 
     srand(time(0));
 
-    terminalCanvas ctx(30, 20);
+    terminalCanvas ctx(20, 10);
     std::vector<ball> balls;
     for (int i = 0; i < numBalls; i++)
     {
@@ -41,8 +41,8 @@ int main()
              randIntInc(ctx.top(), ctx.bottom()),
              randIntInc(ctx.left(), ctx.right()),
              static_cast<bool>(randIntInc(0, 1)),
-             static_cast<bool>(randIntInc(0, 1)),
-             static_cast<char>(randIntInc(33, 126))
+             static_cast<bool>(randIntInc(0, 1))
+            //  static_cast<char>(randIntInc(33, 126))
         );
         balls.push_back(temp);
     }
@@ -50,7 +50,7 @@ int main()
     //actual animation
     for (int i = 0; i < numFrames; i++)
     {
-        frame(ctx, balls, 80);
+        frame(ctx, balls, 50);
     }
 }
 
