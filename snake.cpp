@@ -6,7 +6,7 @@ using namespace std;
 
 const int CANVAS_WIDTH = 10;
 const int CANVAS_HEIGHT = 10;
-enum action {LEFT, RIGHT, UP, DOWN};
+enum action {LEFT, RIGHT, UP, DOWN, INVALID};
 
 struct node
 {
@@ -34,7 +34,7 @@ class snake
         snake(const snake &);
 };
 
-action getInput()
+action input()
 {
     if (GetAsyncKeyState('A') & 0x0001)
     {
@@ -52,6 +52,7 @@ action getInput()
     {
         return DOWN;
     }
+    return INVALID;
 }
 
 int main()
